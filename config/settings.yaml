@@ -1,0 +1,9 @@
+scan_hidden: false
+
+follow_symlinks: false
+
+ignore:
+  - node_modules
+  - .git
+  - __pycache__
+  - .venv
