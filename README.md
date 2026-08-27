@@ -84,6 +84,13 @@ Phase 2 adds intelligent, safe organization planning and execution.
 - **Project Protection**: Recognizes standalone projects and keeps internal subdirectories intact.
 - **Streaming Hasher**: Memory-bounded chunked hashing ($O(1)$ RAM) for handling large files safely.
 
+## Phase 3 — Context Intelligence & Rollback
+
+Phase 3 introduces contextual intelligence and complete operation reversibility:
+- **Context-Aware Decisions**: Files are never organized purely by extension when content, project boundaries, or sibling cues exist.
+- **Conservative Confidence Threshold**: If classification confidence is $< 0.75$, the file is kept untouched or moved to review without guessing.
+- **Rollback Engine**: Safely undoes previous movements and restores all files to original paths.
+
 ## CLI Usage
 
 ```powershell
@@ -92,6 +99,9 @@ python app.py --path "path/to/folder"
 
 # Apply plan safely to disk
 python app.py --path "path/to/folder" --apply
+
+# Rollback previously applied session
+python app.py --rollback
 ```
 
 ## Development Progress
@@ -116,6 +126,11 @@ python app.py --path "path/to/folder" --apply
 - [x] **Transaction Logging & Execution Engine**: `core/transaction.py` and `core/executor.py`
 - [x] **Future Similarity Documentation**: `docs/future_similarity.md`
 
+### Phase 3 (Context Intelligence & Rollback)
+- [x] **Context Engine**: `core/context_engine.py` (content headers, surrounding context, project boundaries)
+- [x] **Rollback Engine**: `core/rollback.py` (transaction log replay & inverse operations)
+- [x] **CLI Rollback Option**: `--rollback` support in `app.py`
+
 ## Running Tests
 
 Run the test suite using pytest:
@@ -124,6 +139,7 @@ Run the test suite using pytest:
 python -m pytest
 ```
 
-Currently passing: **39 tests**
+Currently passing: **42 tests**
+
 
 

@@ -4,9 +4,12 @@ from core.planner import OrganizationPlanner, OperationType
 
 
 def test_planner_organizes_loose_files(tmp_path):
-    # Loose files
-    (tmp_path / "script.py").touch()
-    (tmp_path / "photo.png").touch()
+    # Loose files with content context
+    ai_file = tmp_path / "ai_model.py"
+    ai_file.write_text("import torch\nimport torch.nn as nn")
+
+    photo = tmp_path / "photo.png"
+    photo.touch()
 
     scanner = FileScanner({})
     root = scanner.scan(tmp_path)
@@ -16,7 +19,12 @@ def test_planner_organizes_loose_files(tmp_path):
 
     assert len(plan.operations) == 2
     sources = {op.source.name for op in plan.operations}
-    assert sources == {"script.py", "photo.png"}
+    assert sources == {"ai_model.py", "photo.png"}
+
+    # ai_model.py is routed to Python/AI based on content, not just extension
+    ai_op = next(op for op in plan.operations if op.source.name == "ai_model.py")
+    assert "Python\\AI" in str(ai_op.destination) or "Python/AI" in str(ai_op.destination)
+
 
 
 def test_planner_protects_project_folders(tmp_path):

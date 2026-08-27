@@ -19,9 +19,20 @@ def main():
     parser = argparse.ArgumentParser(description="FileManagerAI - Safe & Intelligent Filesystem Organizer")
     parser.add_argument("--path", type=str, default="models", help="Directory path to scan and organize")
     parser.add_argument("--apply", action="store_true", help="Apply organization plan changes to disk (Default is dry-run)")
+    parser.add_argument("--rollback", action="store_true", help="Rollback previously applied operations using the transaction log")
     args = parser.parse_args()
 
+    # Handle Rollback if requested
+    if args.rollback:
+        from core.rollback import RollbackEngine
+        log_file = Path("logs/transactions.jsonl")
+        engine = RollbackEngine(log_file)
+        restored = engine.rollback_latest_session()
+        print(f"\nRollback complete. Restored {restored} file(s) to original paths.")
+        return
+
     # Load configuration
+
     config_path = Path("config/settings.yaml")
     config = load_config(config_path) if config_path.exists() else {}
 
