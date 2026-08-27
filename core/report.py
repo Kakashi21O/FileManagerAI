@@ -41,9 +41,15 @@ class ReportGenerator:
 
         if summary.project_folders:
             lines.append("Detected Project Directories:")
+            # Deduplicate by resolved path to avoid listing the same project twice
+            seen_paths = set()
             for proj in summary.project_folders:
-                lines.append(f" - {proj.name}")
+                key = proj.resolve()
+                if key not in seen_paths:
+                    seen_paths.add(key)
+                    lines.append(f" - {proj.name}")
             lines.append("----------------------------------------")
+
 
         lines.append("========================================")
         return "\n".join(lines)

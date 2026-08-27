@@ -61,8 +61,8 @@ class OrganizationPlanner:
         # 1. Identify protected project boundaries (never split projects!)
         project_paths: Set[Path] = set(self.detector.find_project_folders(root))
 
-        # 2. Find exact duplicate groups
-        dup_groups = self.dup_detector.find_duplicates(root)
+        # 2. Find exact duplicate groups (excluding project subtrees to avoid flagging intentional assets)
+        dup_groups = self.dup_detector.find_duplicates(root, project_paths=project_paths)
         processed_files: Set[Path] = set()
 
         for group in dup_groups:
@@ -85,14 +85,19 @@ class OrganizationPlanner:
                     )
                     processed_files.add(dup_path)
 
+        # Known organized category root names — already in the right place, skip them
+        ORGANIZED_NAMES = {
+            "Python", "Web", "Code", "Images", "Documents", "Data",
+            "Archives", "_FileManagerAI_Review", "Bots",
+        }
+
         # 3. Structural & Folder Unit Planning
         # Top-level direct subdirectories under root
         for child_folder in root.children:
-            # If the child folder is an identified project or coherent unit, determine if its location needs organizing
             folder_path = child_folder.path
-            
-            # Check if this top-level folder already matches standard category names (e.g. Python, Web, Code, etc.)
-            if folder_path.name in {"Python", "Web", "Code", "Images", "Documents", "Data", "Archives", "_FileManagerAI_Review"}:
+
+            # Skip folders that already match standard category names
+            if folder_path.name in ORGANIZED_NAMES:
                 continue
 
             # Check if all files/subfolders indicate a specific topic (e.g. Python project, Web frontend project)
@@ -136,6 +141,22 @@ class OrganizationPlanner:
             if file_node.path in processed_files:
                 continue
 
+            # Malformed/hidden filename (e.g. ".py" — stem is empty) → Review, not blindly moved
+            if not file_node.path.stem or file_node.path.stem.startswith("."):
+                review_dest = review_manager.get_review_destination(
+                    file_node.path, ReviewCategory.UNCERTAIN
+                )
+                operations.append(
+                    PlanOperation(
+                        operation_type=OperationType.MOVE_TO_REVIEW,
+                        source=file_node.path,
+                        destination=review_dest,
+                        reason="Malformed or hidden filename — requires manual review",
+                        confidence=1.0,
+                    )
+                )
+                continue
+
             context = self.context_engine.analyze_context(file_node, root, project_paths)
             if context.suggested_target_folder and context.confidence >= 0.75:
                 dest_folder = root.path / context.suggested_target_folder
@@ -164,6 +185,7 @@ class OrganizationPlanner:
                             confidence=0.75,
                         )
                     )
+
 
         return OrganizationPlan(
             operations=operations,

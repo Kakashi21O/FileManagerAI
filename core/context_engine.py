@@ -34,6 +34,8 @@ class ContextEngine:
     WEB_BACKEND_KEYWORDS = {"flask", "django", "fastapi", "express", "router", "endpoint", "app = Flask", "app = FastAPI"}
     WEB_FRONTEND_KEYWORDS = {"react", "vue", "angular", "next", "tailwind", "useState", "useEffect", "jsx", "tsx"}
     DATA_KEYWORDS = {"pandas", "numpy", "dataframe", "read_csv", "plt.plot", "seaborn"}
+    DISCORD_BOT_KEYWORDS = {"discord", "commands.bot", "bot.run", "on_ready", "on_message", "intents", "ctx.send", "client.event", "autocatcher", "topgg", "voter", "sofi", "karuta", "waifu", "poke", "poketwo"}
+
 
     def inspect_file_content(self, path: Path, max_bytes: int = 4096) -> str:
         """Reads a bounded header snippet of text/code files safely."""
@@ -84,7 +86,12 @@ class ContextEngine:
         # Content keyword analysis
         words = set(re.findall(r"\b[a-zA-Z_]+\b", snippet_lower))
 
-        if words.intersection(self.AI_ML_KEYWORDS):
+        if words.intersection(self.DISCORD_BOT_KEYWORDS):
+            topic = "Discord/Bot"
+            target_folder = "Python/Bots"
+            confidence = 0.90
+            reason = f"Detected Discord/bot keywords in file content ({', '.join(list(words.intersection(self.DISCORD_BOT_KEYWORDS))[:3])})"
+        elif words.intersection(self.AI_ML_KEYWORDS):
             topic = "AI/ML"
             target_folder = "Python/AI"
             confidence = 0.90
