@@ -2,8 +2,10 @@ scan_hidden: false
 
 follow_symlinks: false
 
+enable_logging: true
+
 ignore:
   - node_modules
   - .git
   - __pycache__
-  - .venv
+  - .venv

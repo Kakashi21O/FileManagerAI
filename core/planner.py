@@ -105,7 +105,8 @@ class OrganizationPlanner:
                         dest_folder = root.path / context.suggested_target_folder
                         dest_file = dest_folder / file_node.name
 
-                        if dest_file != file_node.path and file_node.path.parent != dest_folder:
+                        # Do not plan moves if the file is already inside this folder
+                        if file_node.path.parent.resolve() != dest_folder.resolve() and file_node.path.resolve() != dest_file.resolve():
                             operations.append(
                                 PlanOperation(
                                     operation_type=OperationType.MOVE,
@@ -115,6 +116,7 @@ class OrganizationPlanner:
                                     confidence=context.confidence,
                                 )
                             )
+
                     elif file_node.path.parent == root.path:
                         # Fallback for loose top-level files: classify by category safely
                         category = self.classifier.classify(file_node.path)

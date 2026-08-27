@@ -23,13 +23,18 @@ class TransactionLogger:
     to provide auditability and future rollback capability.
     """
 
-    def __init__(self, log_path: Path):
+    def __init__(self, log_path: Path, enabled: bool = True):
         self.log_path = log_path
+        self.enabled = enabled
 
     def record(self, record: TransactionRecord) -> None:
+        if not self.enabled:
+            return
+
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             with open(self.log_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(asdict(record)) + "\n")
         except OSError as e:
             logger.error(f"Failed to record transaction log: {e}")
+

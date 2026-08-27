@@ -107,16 +107,12 @@ class ContextEngine:
         else:
             # Check existing folder semantics before guessing
             p_name_lower = parent_folder.name.lower()
-            if p_name_lower in {"ai", "ml", "models", "nlp"}:
-                topic = "AI"
-                target_folder = parent_folder.name
-                confidence = 0.80
-                reason = f"Reusing established folder '{parent_folder.name}' context"
-            elif p_name_lower in {"src", "source", "lib", "components"}:
+            if p_name_lower in {"ai", "ml", "models", "nlp", "src", "source", "lib", "components"}:
                 # Keep untouched inside existing structure
                 confidence = 0.80
                 target_folder = None
-                reason = "Existing structured directory (stay untouched)"
+                reason = f"Existing structured folder '{parent_folder.name}' (stay untouched)"
+
             else:
                 # Insufficient confidence to make a specific contextual move
                 confidence = 0.40
