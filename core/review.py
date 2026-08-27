@@ -6,13 +6,14 @@ class ReviewCategory:
     DUPLICATES = "Duplicates"
     SIMILAR = "Similar"
     UNCERTAIN = "Uncertain"
+    EMPTY = "Empty"
     REVIEW = "Review"
 
 
 class ReviewManager:
     """
-    Manages the review holding area where uncertain or duplicate files are placed
-    for explicit human inspection. Never automatically deletes any files.
+    Manages the review holding area where uncertain, duplicate, or empty folders
+    are placed for explicit human inspection. Never automatically deletes any files or folders.
     """
 
     def __init__(self, root_dir: Path, review_folder_name: str = "_FileManagerAI_Review"):
@@ -25,3 +26,4 @@ class ReviewManager:
         """
         category_folder = self.review_root / category
         return category_folder / source_path.name
+

@@ -126,8 +126,10 @@ python app.py --rollback
 - [x] **Transaction Logging & Execution Engine**: `core/transaction.py` and `core/executor.py`
 - [x] **Future Similarity Documentation**: `docs/future_similarity.md`
 
-### Phase 3 (Context Intelligence & Rollback)
+### Phase 3 (Context Intelligence, Hierarchy Optimizer & Rollback)
 - [x] **Context Engine**: `core/context_engine.py` (content headers, surrounding context, project boundaries)
+- [x] **Temporal Organization**: `core/temporal.py` (timeline folders based on year/month metadata)
+- [x] **Hierarchy Optimizer & Safe Empty Folder Preserver**: `core/optimizer.py` (routes empty folders to `_FileManagerAI_Review/Empty/`, flattens redundant chains, uses temporary files for state storage)
 - [x] **Rollback Engine**: `core/rollback.py` (transaction log replay & inverse operations)
 - [x] **CLI Rollback Option**: `--rollback` support in `app.py`
 
@@ -139,7 +141,8 @@ Run the test suite using pytest:
 python -m pytest
 ```
 
-Currently passing: **42 tests**
+Currently passing: **44 tests**
+
 
 
 
