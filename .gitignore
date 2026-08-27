@@ -18,9 +18,19 @@ env/
 logs/*
 !logs/.gitkeep
 
-# Generated reports
+# Generated reports (internal use only — never commit scan output)
 reports/*
 !reports/.gitkeep
+
+# CLI output dumps — contain private file structure info, never commit these
+*.ansi
+report.txt
+report_*.txt
+report_*.ansi
+output.txt
+output_*.txt
+scan_*.txt
+plan_*.txt
 
 # IDE
 .vscode/
@@ -34,4 +44,3 @@ Thumbs.db
 *.egg-info/
 dist/
 build/
-
