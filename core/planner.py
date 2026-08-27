@@ -85,59 +85,91 @@ class OrganizationPlanner:
                     )
                     processed_files.add(dup_path)
 
-        # 3. Contextual File Analysis & Planning
-        for node in self.tree_builder.traverse(root):
-            if isinstance(node, FolderNode):
-                # Analyze each file in the folder with its surrounding context
-                for file_node in node.files:
-                    if file_node.path in processed_files:
-                        continue
+        # 3. Structural & Folder Unit Planning
+        # Top-level direct subdirectories under root
+        for child_folder in root.children:
+            # If the child folder is an identified project or coherent unit, determine if its location needs organizing
+            folder_path = child_folder.path
+            
+            # Check if this top-level folder already matches standard category names (e.g. Python, Web, Code, etc.)
+            if folder_path.name in {"Python", "Web", "Code", "Images", "Documents", "Data", "Archives", "_FileManagerAI_Review"}:
+                continue
 
-                    # Contextual reasoning
-                    context = self.context_engine.analyze_context(file_node, node, project_paths)
+            # Check if all files/subfolders indicate a specific topic (e.g. Python project, Web frontend project)
+            # Find majority topic across files inside this folder unit
+            folder_files = []
+            for n in self.tree_builder.traverse(child_folder):
+                if isinstance(n, FileNode):
+                    folder_files.append(n)
 
-                    # If inside a project or already safely structured -> stay untouched
-                    if context.is_in_project:
-                        continue
+            # Analyze files inside the folder unit to decide where the whole folder belongs
+            if folder_files:
+                sample_contexts = [
+                    self.context_engine.analyze_context(f, child_folder, project_paths)
+                    for f in folder_files[:10]  # Sample first 10 files
+                ]
+                
+                # Check for cohesive target suggestion
+                topics = [c.suggested_target_folder for c in sample_contexts if c.suggested_target_folder]
+                if topics:
+                    # Pick most common target folder (e.g., Python/AI or Web/Frontend)
+                    dominant_target = max(set(topics), key=topics.count)
+                    dest_parent = root.path / dominant_target
+                    dest_folder = dest_parent / folder_path.name
 
-                    # If contextual topic was recognized with high confidence
-                    if context.suggested_target_folder and context.confidence >= 0.75:
-                        dest_folder = root.path / context.suggested_target_folder
-                        dest_file = dest_folder / file_node.name
-
-                        # Do not plan moves if the file is already inside this folder
-                        if file_node.path.parent.resolve() != dest_folder.resolve() and file_node.path.resolve() != dest_file.resolve():
-                            operations.append(
-                                PlanOperation(
-                                    operation_type=OperationType.MOVE,
-                                    source=file_node.path,
-                                    destination=dest_file,
-                                    reason=context.reason,
-                                    confidence=context.confidence,
-                                )
+                    if dest_folder.resolve() != folder_path.resolve() and folder_path.parent.resolve() != dest_parent.resolve():
+                        operations.append(
+                            PlanOperation(
+                                operation_type=OperationType.MOVE,
+                                source=folder_path,
+                                destination=dest_folder,
+                                reason=f"Move entire coherent folder unit into {dominant_target}/",
+                                confidence=0.85,
                             )
+                        )
+                        # Mark all files in this whole folder as processed so we don't move individual internal files
+                        for f in folder_files:
+                            processed_files.add(f.path)
 
-                    elif file_node.path.parent == root.path:
-                        # Fallback for loose top-level files: classify by category safely
-                        category = self.classifier.classify(file_node.path)
-                        dest_folder = root.path / category
-                        dest_file = dest_folder / file_node.name
+        # 4. Only loose, orphaned top-level files are categorized individually
+        for file_node in root.files:
+            if file_node.path in processed_files:
+                continue
 
-                        if dest_file != file_node.path:
-                            operations.append(
-                                PlanOperation(
-                                    operation_type=OperationType.MOVE,
-                                    source=file_node.path,
-                                    destination=dest_file,
-                                    reason=f"Organize loose file into {category}/ category (baseline rule)",
-                                    confidence=0.75,
-                                )
-                            )
+            context = self.context_engine.analyze_context(file_node, root, project_paths)
+            if context.suggested_target_folder and context.confidence >= 0.75:
+                dest_folder = root.path / context.suggested_target_folder
+                dest_file = dest_folder / file_node.name
+                if dest_file != file_node.path:
+                    operations.append(
+                        PlanOperation(
+                            operation_type=OperationType.MOVE,
+                            source=file_node.path,
+                            destination=dest_file,
+                            reason=context.reason,
+                            confidence=context.confidence,
+                        )
+                    )
+            else:
+                category = self.classifier.classify(file_node.path)
+                dest_folder = root.path / category
+                dest_file = dest_folder / file_node.name
+                if dest_file != file_node.path:
+                    operations.append(
+                        PlanOperation(
+                            operation_type=OperationType.MOVE,
+                            source=file_node.path,
+                            destination=dest_file,
+                            reason=f"Organize loose root file into {category}/",
+                            confidence=0.75,
+                        )
+                    )
 
         return OrganizationPlan(
             operations=operations,
             duplicate_groups=dup_groups,
         )
+
 
     def _is_subpath(self, child: Path, parent: Path) -> bool:
         try:

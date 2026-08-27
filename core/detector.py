@@ -16,12 +16,14 @@ class StructureDetector:
             "pyproject.toml",
             "setup.py",
             "requirements.txt",
+            "pyvenv.cfg",
             "Cargo.toml",
             "pom.xml",
             "build.gradle",
             "go.mod",
             ".git",
         }
+
 
     def find_empty_folders(self, root: FolderNode) -> List[Path]:
         """

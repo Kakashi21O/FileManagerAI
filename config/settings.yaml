@@ -8,4 +8,13 @@ ignore:
   - node_modules
   - .git
   - __pycache__
-  - .venv
+  - .venv
+  - venv
+  - env
+  - .env
+  - Lib
+  - site-packages
+  - Scripts
+  - dist
+  - build
+
