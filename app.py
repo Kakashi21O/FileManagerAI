@@ -2,12 +2,27 @@ from pathlib import Path
 
 from core.config_loader import load_config
 from core.scanner import FileScanner
+from core.analyzer import FolderAnalyzer
 
 
-config = load_config(Path("config/settings.yaml"))
+def main():
+    # Load configuration
+    config_path = Path("config/settings.yaml")
+    config = load_config(config_path) if config_path.exists() else {}
 
-scanner = FileScanner(config)
+    # Scan directory
+    target_path = Path("models")
+    scanner = FileScanner(config)
+    root = scanner.scan(target_path)
 
-root = scanner.scan(Path("models"))
+    # Perform full analysis
+    analyzer = FolderAnalyzer()
+    summary = analyzer.analyze(root)
 
-print(root)
+    # Print summary report to console
+    report_text = analyzer.generate_report(summary)
+    print(report_text)
+
+
+if __name__ == "__main__":
+    main()

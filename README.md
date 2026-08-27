@@ -79,9 +79,9 @@ These features will be added in later phases.
 - [x] **Part 3 — Basic Scanner**: Directory scanning with `FileScanner` in `core/scanner.py`.
 - [x] **Part 4 — Recursive Scanner & Config**: Recursive directory walking with YAML config loading in `core/config_loader.py`.
 - [x] **Part 5 — Tree Builder & Traversal**: Tree integrity validation and recursive in-memory traversal generator in `core/tree_builder.py`.
-- [ ] **Part 6 — Statistics & Metrics**: Calculating file counts, total sizes, and folder depth metrics.
-- [ ] **Part 7 — Structural Detection**: Detecting empty folders, redundant nesting, deep paths, and project folders.
-- [ ] **Part 8 — Health Checking & Reporting**: Summary health scoring and generating readable reports.
+- [x] **Part 6 — Statistics & Metrics**: Calculating file counts, total sizes, and folder depth metrics in `core/statistics.py`.
+- [x] **Part 7 — Structural Detection**: Detecting empty folders, redundant single-child chains, deep paths, and project folders in `core/detector.py`.
+- [x] **Part 8 — Health Checking & Reporting**: Health scoring in `core/health.py`, report generation in `core/report.py`, and full analysis orchestration in `core/analyzer.py`.
 
 ## Running Tests
 
@@ -91,7 +91,8 @@ Run the test suite using pytest:
 python -m pytest
 ```
 
-Currently passing: **15 tests**
+Currently passing: **25 tests**
+
 
 ## Future
 
