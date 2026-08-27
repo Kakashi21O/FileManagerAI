@@ -72,16 +72,49 @@ The application will not:
 
 These features will be added in later phases.
 
-## Development Progress (Phase 1)
+## Phase 2 — Organization & Safety
 
-- [x] **Part 1 — Data Models**: `FileNode`, `FolderNode`, and `ScanResult` defined with dataclasses.
-- [x] **Part 2 — Path Handling**: Path utility functions in `core/path_utils.py`.
-- [x] **Part 3 — Basic Scanner**: Directory scanning with `FileScanner` in `core/scanner.py`.
-- [x] **Part 4 — Recursive Scanner & Config**: Recursive directory walking with YAML config loading in `core/config_loader.py`.
-- [x] **Part 5 — Tree Builder & Traversal**: Tree integrity validation and recursive in-memory traversal generator in `core/tree_builder.py`.
-- [x] **Part 6 — Statistics & Metrics**: Calculating file counts, total sizes, and folder depth metrics in `core/statistics.py`.
-- [x] **Part 7 — Structural Detection**: Detecting empty folders, redundant single-child chains, deep paths, and project folders in `core/detector.py`.
-- [x] **Part 8 — Health Checking & Reporting**: Health scoring in `core/health.py`, report generation in `core/report.py`, and full analysis orchestration in `core/analyzer.py`.
+Phase 2 adds intelligent, safe organization planning and execution.
+
+### Absolute Safety Rules
+- **DELETE = NEVER**: The application never deletes files or folders.
+- **Dry-Run by Default**: Simulates planning operations without altering the filesystem.
+- **Review Area**: Candidate duplicates and uncertain files are moved to `_FileManagerAI_Review/{Duplicates, Similar, Uncertain}` with reasons for human verification.
+- **Zero Silent Overwrites**: Collision resolution with non-destructive version numbering (`_1`, `_2`).
+- **Project Protection**: Recognizes standalone projects and keeps internal subdirectories intact.
+- **Streaming Hasher**: Memory-bounded chunked hashing ($O(1)$ RAM) for handling large files safely.
+
+## CLI Usage
+
+```powershell
+# Dry-run analysis and plan preview (safe, no changes)
+python app.py --path "path/to/folder"
+
+# Apply plan safely to disk
+python app.py --path "path/to/folder" --apply
+```
+
+## Development Progress
+
+### Phase 1 (Scanning & Analysis)
+- [x] **Part 1 — Data Models**: `FileNode`, `FolderNode`, and `ScanResult`
+- [x] **Part 2 — Path Handling**: Path utilities in `core/path_utils.py`
+- [x] **Part 3 — Basic Scanner**: Scanning directories with `FileScanner`
+- [x] **Part 4 — Recursive Scanner & Config**: Config-driven nested tree scanning
+- [x] **Part 5 — Tree Builder & Traversal**: Integrity validation & generator traversal
+- [x] **Part 6 — Statistics & Metrics**: `core/statistics.py`
+- [x] **Part 7 — Structural Detection**: `core/detector.py`
+- [x] **Part 8 — Health Checking & Reporting**: `core/health.py`, `core/report.py`, `core/analyzer.py`
+
+### Phase 2 (Organization & Safety Engine)
+- [x] **Streaming Hasher**: `core/hashing.py` (chunked SHA-256)
+- [x] **Duplicate Candidate Detection**: `core/duplicate_detector.py` ($O(n)$ candidate grouping)
+- [x] **Extensible Category Rules**: `core/rules.py` (Code, Images, Documents, Data, Archives)
+- [x] **Review Area Manager**: `core/review.py`
+- [x] **Organization Planner**: `core/planner.py` (Generates non-destructive plans)
+- [x] **Safety Validator & Collision Handling**: `core/safety.py`
+- [x] **Transaction Logging & Execution Engine**: `core/transaction.py` and `core/executor.py`
+- [x] **Future Similarity Documentation**: `docs/future_similarity.md`
 
 ## Running Tests
 
@@ -91,18 +124,6 @@ Run the test suite using pytest:
 python -m pytest
 ```
 
-Currently passing: **25 tests**
+Currently passing: **39 tests**
 
-
-## Future
-
-The next phases will add:
-
-* File and folder organization
-* Structure optimization
-* Content analysis
-* AI
-* Safe file operations
-* GUI
-* Automation
 
